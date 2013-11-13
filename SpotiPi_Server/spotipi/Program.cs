@@ -96,28 +96,10 @@ namespace spotipi
     {
         [DllImport("USER32.DLL")]
         public static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
-        [DllImport("User32.dll", EntryPoint = "PostMessage")]
-        private static extern int PostMessage(IntPtr hWnd, uint Msg, uint wParam, uint lParam);
-        [DllImport("USER32.DLL", CharSet = CharSet.Auto, SetLastError = true, ExactSpelling = true)]
-        private static extern bool SetForegroundWindow(IntPtr hWnd);
-        [DllImport("user32", CharSet = CharSet.Auto, SetLastError = true, ExactSpelling = true)]
-        private static extern bool keybd_event(byte bVk, byte bScan, int dwFlags, int dwExtraInfo);
-        [DllImport("kernel32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
-        private static extern void Sleep(long dwMilliseconds);
         [DllImport("user32.dll", EntryPoint = "GetWindowText", CharSet = CharSet.Ansi)]
         public static extern bool GetWindowText(IntPtr hWnd, [OutAttribute()] StringBuilder strNewWindowName,
             Int32 maxCharCount);
-        [DllImport("user32", CharSet = CharSet.Auto, SetLastError = true, ExactSpelling = true)]
-        private static extern bool SetWindowText(IntPtr hwnd, string lpString);
-        [DllImport("user32", CharSet = CharSet.Auto, SetLastError = true, ExactSpelling = true)]
-        private static extern long EnumChildWindows(long hWndParent, long lpEnumFunc, long lParam);
-
-        private const uint WM_KEYDOWN = 0x100;
-        private const uint WM_KEYUP = 0x101;
-        private const uint WM_MOUSEACTIVATE = 0x21;
-        private const int KEYEVENTF_EXTENDEDKEY = 0x1;
-        private const int KEYEVENTF_KEYUP = 0x2;
-
+            
         private IntPtr w;
         public spotify()
         {
