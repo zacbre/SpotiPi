@@ -3,9 +3,14 @@ SpotiPi
 
 A small script to show your currently playing song on Spotify via a 16x2 LCD screen connected to your RPI.
 
-Preview: http://i.imgur.com/aAUOvfc.png
+Preview: 
+
+[!Screen](http://i.imgur.com/aAUOvfc.png)
 
 To use:
+
+Your raspberry Pi will have to be wired as such:
+[!Wiring](http://learn.adafruit.com/system/assets/assets/000/001/729/medium800/pi-char-lcd.gif?1345220594)
 
 You'll need URLLib3 on your Raspberry PI, as well as RPI.GPIO from the python libraries.
 
