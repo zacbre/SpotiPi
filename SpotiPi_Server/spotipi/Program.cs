@@ -35,17 +35,27 @@ namespace spotipi
                     Thread.Sleep(0);
                     continue;
                 }
-                if(songname == null || songname != m.Nowplaying().Replace("Spotify - ", ""))
+                try
                 {
-                    songname = m.Nowplaying().Replace("Spotify - ", "");
-                    string[] x = m.Nowplaying().Replace("Spotify - ", "").Split('–');
-                    song.songtitle = x[1].Substring(1, x[1].Length - 1);
-                    song.artist = x[0].Substring(0, x[0].Length - 1);
-                    Thread.Sleep(0);
+                    if (songname == null || songname != m.Nowplaying().Replace("Spotify - ", ""))
+                    {
+                        songname = m.Nowplaying().Replace("Spotify - ", "");
+                        string[] x = m.Nowplaying().Replace("Spotify - ", "").Split('–');
+                        song.songtitle = x[1].Substring(1, x[1].Length - 1);
+                        song.artist = x[0].Substring(0, x[0].Length - 1);
+                        Thread.Sleep(0);
+                    }
+                    else
+                    {
+                        Thread.Sleep(0); continue;
+                    }
                 }
-                else
+                catch
                 {
-                    Thread.Sleep(0); continue;
+                    song.artist = "";
+                    song.songtitle = "Not Playing.";
+                    Thread.Sleep(0);
+                    continue;
                 }
             }
         }
