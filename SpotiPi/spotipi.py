@@ -74,12 +74,14 @@ class SpotiPi:
 							#print "Set songname and artist to ", self.artist, "-", self.songname
 					sleep(1)
 				except Exception as inst:
+					with self.lock:
+						self.printit = 0
 					self.songname = ""
 					self.artist = ""
 					lcd.clear()
 					lcd.message("Error\n")
 					lcd.message("Cannot Connect.")
-					sleep(1)
+					sleep(2)
 threads = []
 
 spotipi = SpotiPi()
