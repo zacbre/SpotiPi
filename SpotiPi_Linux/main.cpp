@@ -2,6 +2,9 @@
 
 int port = 5555;
 char *prt;
+char *Token;
+char *CFID;
+
 int main(int argc , char *argv[])
 {
     //cout << getSpotifySong() <<endl;
@@ -12,6 +15,14 @@ int main(int argc , char *argv[])
         exit(1);
     }
     prt = argv[1];
+    //grab token.
+    Token = getToken();
+    CFID = getCFID(Token);
+    if(Token == "" || CFID == "")
+    {
+        printf("There was an error while grabbing the Token and/or CFID. Please make sure you are logged into Spotify and that it is running.\n");
+        return 1;
+    }
     int sock, clisock;
     socklen_t clilen;
     char buffer[256];
@@ -61,10 +72,10 @@ void error(char *msg)
     exit(1);
 }
 
-char *getSpotifySong()
+char *getToken()
 {
-    //first, GET our CSRF token.
-    string h = GET("https://embed.spotify.com/openplay/?uri=spotify:track:5Zp4SWOpbuOdnsxLqwgutt");
+    string h = GET("https://embed.spotify.com/?uri=spotify:track:5Zp4SWOpbuOdnsxLqwgutt", true);
+    if(h == "err") return "";
     //look for tokenData;
     char *x = (char*)h.c_str();//str_replace(h.c_str(), " ", "");
     //get our tokendata.
@@ -76,87 +87,111 @@ char *getSpotifySong()
         if(tokenend != -1)
         {
             //get token.
-            char *token = substr_s(x, tokenstart + 1, tokenend - tokenstart - 1);
-            //cout << token <<endl;
-            //now we have our token. let's use it to get our CFID.
-            char url[512];
-            memset(url, 0, 512);
-            strcat(url, "http://localhost:");
-            strcat(url, prt);
-            strcat(url, "/simplecsrf/token.json");
-            //cout << url <<endl;
-            string v = GET(url);
-            //get token.
-            char *cs = (char*)v.c_str();
-            int startcsrf = str_indexof(cs, "token\": \"");
-            int endcsrf = IndexOf(cs, "\"", startcsrf + 1);
-            char *csrf = substr_s(cs, startcsrf + 1, endcsrf - startcsrf - 1);
-            //cout << csrf <<endl;
-            //start a request to status.
-            char buff[512];
-            memset(buff, 0, 512);
-            strcat(buff, "http://localhost:");
-            strcat(buff, prt);
-            strcat(buff, "/remote/status.json?&ref=&cors=");
-            strcat(buff, "&oauth=");
-            strcat(buff, token);
-            strcat(buff, "&csrf=");
-            strcat(buff, csrf);
-            //cout << buff <<endl;
-            string status = GET(buff);
-            //cout << status <<endl;
-            //get track and artist name.
-            char *p = (char*)status.c_str();
-            //locate "name"
-            int starttrack = str_indexof(p, "name\": \"", 0);
-            int endtrack = IndexOf(p, "\"", starttrack + 1);
-            char *track = substr_s(p, starttrack + 1, endtrack - 1 - starttrack);
-            //cout << track <<endl;
-            int startartist = str_indexof(p, "name\": \"", starttrack);
-            int endartist = IndexOf(p, "\"", startartist + 1);
-            char *artist = substr_s(p, startartist + 1, endartist - 1 - startartist);
-            //cout << artist <<endl;
-            free(token);
-            free(csrf);
-            //take our shit and return it.
-            char *output = (char*)malloc(strlen(track) + strlen(artist) + strlen("\n"));
-            bzero(output, strlen(track) + strlen(artist) + strlen("\n"));
-            strcat(output, artist);
-            strcat(output, "\n");
-            strcat(output, track);
-            free(track);
-            free(artist);
-            return output;
+            return substr_s(x, tokenstart + 1, tokenend - tokenstart - 1);
         }
     }
+    return "";
+}
+
+char *getCFID(char *token)
+{
+    char url[512];
+    memset(url, 0, 512);
+    strcat(url, "http://localhost:");
+    strcat(url, prt);
+    strcat(url, "/simplecsrf/token.json");
+    //cout << url <<endl;
+    string v = GET(url);
+    if(v == "err") return "";
+    //get token.
+    char *cs = (char*)v.c_str();
+    int startcsrf = str_indexof(cs, "token\": \"");
+    if(startcsrf != -1)
+    {
+
+    int endcsrf = IndexOf(cs, "\"", startcsrf + 1);
+        if(endcsrf != -1)
+        {
+            return substr_s(cs, startcsrf + 1, endcsrf - startcsrf - 1);
+        }
+    }
+    return "";
+}
+
+char *getSpotifySong()
+{
+    char *shit = (char*)malloc(strlen("Error."));
+    strcat(shit, "Error.");
+
+    char buff[512];
+    memset(buff, 0, 512);
+    strcat(buff, "http://localhost:");
+    strcat(buff, prt);
+    strcat(buff, "/remote/status.json?&ref=&cors=");
+    strcat(buff, "&oauth=");
+    strcat(buff, Token);
+    strcat(buff, "&csrf=");
+    strcat(buff, CFID);
+    //cout << buff <<endl;
+    string status = GET(buff);
+    //cout << status <<endl;
+    //get track and artist name.
+    char *p = (char*)status.c_str();
+    //locate "name"
+    int starttrack = str_indexof(p, "name\": \"", 0);
+    if(starttrack == -1) return shit;
+
+    int endtrack = IndexOf(p, "\"", starttrack + 1);
+    if(endtrack == -1) return shit;
+
+    char *track = substr_s(p, starttrack + 1, endtrack - 1 - starttrack);
+
+    int startartist = str_indexof(p, "name\": \"", starttrack);
+    if(startartist == -1) return shit;
+
+    int endartist = IndexOf(p, "\"", startartist + 1);
+    if(endartist == -1) return shit;
+
+    char *artist = substr_s(p, startartist + 1, endartist - 1 - startartist);
+    //take our shit and return it.
+    char *output = (char*)malloc(strlen(track) + strlen(artist) + strlen("\n"));
+    bzero(output, strlen(track) + strlen(artist) + strlen("\n"));
+    strcat(output, artist);
+    strcat(output, "\n");
+    strcat(output, track);
+    free(track);
+    free(artist);
+    return output;
 }
 
 string outputData;
 /* the function to invoke as the data recieved */
-size_t static write_callback_func(void *buffer,
-                        size_t size,
-                        size_t nmemb,
-                        void *userp)
+size_t write_callback(char *buffer, size_t size, size_t nmemb, void *userdata)
 {
     outputData = string((char*)buffer);
     return size*nmemb;
 }
-string GET(char *url)
+string GET(char *url, bool emulate)
 {
     CURL *curl;
     CURLcode res;
+    string *data = new string("");
     curl_global_init(CURL_GLOBAL_DEFAULT);
     curl = curl_easy_init();
     if(curl) {
-        struct curl_slist *chunk = NULL;
-        chunk = curl_slist_append(chunk, "Origin: https://embed.spotify.com");
-        chunk = curl_slist_append(chunk, "Referer: https://embed.spotify.com/?uri=spotify:track:5Zp4SWOpbuOdnsxLqwgutt");
-        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, chunk);
+        if(emulate)
+        {
+            struct curl_slist *chunk = NULL;
+            chunk = curl_slist_append(chunk, "Origin: https://embed.spotify.com");
+            chunk = curl_slist_append(chunk, "Referer: https://embed.spotify.com/?uri=spotify:track:5Zp4SWOpbuOdnsxLqwgutt");
+            chunk = curl_slist_append(chunk, "User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:28.0) Gecko/20100101 Firefox/28.0");
+            curl_easy_setopt(curl, CURLOPT_HTTPHEADER, chunk);
+        }
         curl_easy_setopt(curl, CURLOPT_URL, url);
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
         curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback_func);
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
         res = curl_easy_perform(curl);
         if(res != CURLE_OK)
         {
@@ -168,5 +203,5 @@ string GET(char *url)
     if(outputData.length() > 0)
         return outputData;
     else
-        return NULL;
+        return "err";
 }

@@ -19,5 +19,7 @@ HEADERS += \
     curl/curlbuild.h \
     curl/curl.h
 
+LIBS += -lcurl
+
 OTHER_FILES +=
 

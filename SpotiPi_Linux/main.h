@@ -27,7 +27,9 @@ char * str_replace(
 );
 void trim(char *str);
 void error(char *msg);
-string GET(char *url);
+string GET(char *url, bool emulate = true);
+char *getCFID(char *token);
+char *getToken();
 char *getSpotifySong();
 
 #endif // MAIN_H
