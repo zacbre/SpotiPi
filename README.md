@@ -3,6 +3,9 @@ SpotiPi
 
 A small script to show your currently playing song on Spotify via a 16x2 LCD screen connected to your RPI.
 
+Note, I'm not great with python. It's terrible looking code and could definitely be optimized. I wrote it to
+my best knowledge with python.
+
 Preview: 
 
 ![Screen](http://i.imgur.com/aAUOvfc.png)

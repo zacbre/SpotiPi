@@ -32,29 +32,30 @@ namespace spotipi
                 {
                     song.artist = "";
                     song.songtitle = "Not Playing.";
-                    Thread.Sleep(0);
+                    Thread.Sleep(1000);
                     continue;
                 }
                 try
                 {
-                    if (songname == null || songname != m.Nowplaying().Replace("Spotify - ", ""))
+                    if (songname == null || song.songtitle == "Not Playing." || songname != m.Nowplaying().Replace("Spotify - ", ""))
                     {
                         songname = m.Nowplaying().Replace("Spotify - ", "");
                         string[] x = m.Nowplaying().Replace("Spotify - ", "").Split('–');
                         song.songtitle = x[1].Substring(1, x[1].Length - 1);
                         song.artist = x[0].Substring(0, x[0].Length - 1);
-                        Thread.Sleep(0);
+                        Thread.Sleep(1000);
                     }
                     else
                     {
-                        Thread.Sleep(0); continue;
+                        Thread.Sleep(1000); continue;
                     }
                 }
                 catch
                 {
                     song.artist = "";
                     song.songtitle = "Not Playing.";
-                    Thread.Sleep(0);
+                    Thread.Sleep(1000);
+                    m = new spotify();
                     continue;
                 }
             }
@@ -92,6 +93,7 @@ namespace spotipi
             string lastshit = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nConnection: keepalive\r\nKeep-Alive: 300\r\nContent-Length: {0}\r\n\r\n{1}";
             //send shit to client.
             string output = song.artist + "\n" + song.songtitle;
+            Console.WriteLine(output);
             client.Send(Encoding.ASCII.GetBytes(string.Format(lastshit, output.Length, output)));
             client.Close();
             return;
