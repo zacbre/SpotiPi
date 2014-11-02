@@ -13,8 +13,7 @@ Preview:
 To use:
 
 Your raspberry Pi will have to be wired as such:
-![Wiring](http://learn.adafruit.com/system/assets/assets/000/001/729/medium800/pi-char-lcd.gif?1345220594)
-
+![Wiring](https://learn.adafruit.com/system/assets/assets/000/001/729/medium800/raspberry_pi_pi-char-lcd.gif?1396775803)
 You'll need URLLib3 on your Raspberry PI, as well as RPI.GPIO from the python libraries.
 
 Just run it on your PC first, make sure it's listening, and then edit the IP in spotipi.py.

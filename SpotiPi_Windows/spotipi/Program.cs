@@ -10,11 +10,12 @@ namespace spotipi
 {
     class Program
     {
-        public static SpotySong song = new SpotySong();
+        private static SpotySong song = new SpotySong();
+        private static spotify m = new spotify();
+        private static string songname = null;
         static void Main(string[] args)
         {
-            spotify m = new spotify();
-            string songname = null;
+
             //listen for HTTP requests.
             new Thread(new ThreadStart(delegate()
             {
@@ -26,39 +27,6 @@ namespace spotipi
                     new Thread(new ParameterizedThreadStart(PortHandler)).Start(listen1.Accept());
 
             })).Start();
-            while (true)
-            {
-                if (m.Nowplaying() == "Spotify")
-                {
-                    song.artist = "";
-                    song.songtitle = "Not Playing.";
-                    Thread.Sleep(1000);
-                    continue;
-                }
-                try
-                {
-                    if (songname == null || song.songtitle == "Not Playing." || songname != m.Nowplaying().Replace("Spotify - ", ""))
-                    {
-                        songname = m.Nowplaying().Replace("Spotify - ", "");
-                        string[] x = m.Nowplaying().Replace("Spotify - ", "").Split('–');
-                        song.songtitle = x[1].Substring(1, x[1].Length - 1);
-                        song.artist = x[0].Substring(0, x[0].Length - 1);
-                        Thread.Sleep(1000);
-                    }
-                    else
-                    {
-                        Thread.Sleep(1000); continue;
-                    }
-                }
-                catch
-                {
-                    song.artist = "";
-                    song.songtitle = "Not Playing.";
-                    Thread.Sleep(1000);
-                    m = new spotify();
-                    continue;
-                }
-            }
         }
 
         static public void PortHandler(object _socket)
@@ -89,11 +57,30 @@ namespace spotipi
                 catch { }
                 return;
             }
+            if (m.Nowplaying() == "Spotify")
+            {
+                song.artist = "";
+                song.songtitle = "Not Playing.";
+            }
+            try
+            {
+                if (songname == null || song.songtitle == "Not Playing." || songname != m.Nowplaying().Replace("Spotify - ", ""))
+                {
+                    songname = m.Nowplaying().Replace("Spotify - ", "");
+                    string[] x = m.Nowplaying().Replace("Spotify - ", "").Split('–');
+                    song.songtitle = x[1].Substring(1, x[1].Length - 1);
+                    song.artist = x[0].Substring(0, x[0].Length - 1);
+                }
+            }
+            catch
+            {
+                song.artist = "";
+                song.songtitle = "Not Playing.";
+            }
             //return last two messages.
             string lastshit = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nConnection: keepalive\r\nKeep-Alive: 300\r\nContent-Length: {0}\r\n\r\n{1}";
             //send shit to client.
             string output = song.artist + "\n" + song.songtitle;
-            Console.WriteLine(output);
             client.Send(Encoding.ASCII.GetBytes(string.Format(lastshit, output.Length, output)));
             client.Close();
             return;
@@ -111,7 +98,7 @@ namespace spotipi
         [DllImport("user32.dll", EntryPoint = "GetWindowText", CharSet = CharSet.Ansi)]
         public static extern bool GetWindowText(IntPtr hWnd, [OutAttribute()] StringBuilder strNewWindowName,
             Int32 maxCharCount);
-            
+
         private IntPtr w;
         public spotify()
         {
