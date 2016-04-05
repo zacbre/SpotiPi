@@ -20,6 +20,8 @@ int main(int argc , char *argv[])
     CFID = getCFID(Token);
     if(Token == "" || CFID == "")
     {
+        printf("Token: %s\n", Token);
+        printf("CFID: %s\n", CFID);
         printf("There was an error while grabbing the Token and/or CFID. Please make sure you are logged into Spotify and that it is running.\n");
         return 1;
     }
@@ -74,16 +76,16 @@ void error(char *msg)
 
 char *getToken()
 {
-    string h = GET("https://embed.spotify.com/?uri=spotify:track:5Zp4SWOpbuOdnsxLqwgutt", true);
+    string h = GET("http://open.spotify.com/token", true);
     if(h == "err") return "";
     //look for tokenData;
     char *x = (char*)h.c_str();//str_replace(h.c_str(), " ", "");
     //get our tokendata.
-    int tokenstart = str_indexof(x, "tokenData = '");
+    int tokenstart = str_indexof(x, "\"t\":\"");
     if(tokenstart != -1)
     {
         //get end of token
-        int tokenend = IndexOf(x, "'", tokenstart + 1);
+        int tokenend = IndexOf(x, "\"", tokenstart + 1);
         if(tokenend != -1)
         {
             //get token.
